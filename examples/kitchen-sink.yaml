@@ -1,0 +1,40 @@
+---
+
+# Name for the cloudformation stack should be unique within your AWS region
+name: stack-name
+
+# A URL to template (json/yaml) that lives in an S3 bucket.
+template: https://examplebucket.s3.us-west-2.amazonaws.com/template-name.yaml
+
+# Any parameters for the template
+parameters:
+  ParamName: value
+  Param2Name: value2
+
+# Tags you'd like to add to the stack
+tags:
+  Key1: Value
+  key2: value
+
+# Some templates require a explicit parameters to apply:
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html
+capabilities:
+- CAPABILITY_IAM
+- CAPABILITY_AUTO_EXPAND
+
+# Enable termination protection on the Cloudformation Stack.
+enable_termination_protection: false
+
+# When creating a new stack, you can disable the rollback that automatically
+# happens if the stack fails to create.
+#
+# If you set this to true, you cannot use `on_failure` below.
+disable_rollback: false
+
+# When creating a new stack, you can specify the action to take when the stack fails.
+#
+# If you set this setting, you cannot use `disable_rollback`.
+on_failure: DELETE
+
+
+
