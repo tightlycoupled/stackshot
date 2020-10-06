@@ -4,6 +4,7 @@
 name: stack-name
 
 # A URL to template (json/yaml) that lives in an S3 bucket.
+# This only works with templates in S3 buckets for now.
 template: https://examplebucket.s3.us-west-2.amazonaws.com/template-name.yaml
 
 # Any parameters for the template
