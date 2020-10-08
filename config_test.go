@@ -28,8 +28,8 @@ func TestYAMLParsing(t *testing.T) {
 		// Defaults
 		{
 			doc: `---
-name: hellobuckets
-template_url: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml`,
+Name: hellobuckets
+TemplateURL: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml`,
 			out: &StackConfig{
 				Name:                        "hellobuckets",
 				TemplateBody:                "",
@@ -46,8 +46,8 @@ template_url: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.l
 		// Defaults with template_body as valid YAML
 		{
 			doc: `---
-name: hellobuckets
-template_body:
+Name: hellobuckets
+TemplateBody:
   AWSTemplateFormatVersion: 2010-09-09
   Resources:
     S3Bucket:
@@ -68,19 +68,19 @@ template_body:
 		// Fully filled out
 		{
 			doc: `---
-name: hellobuckets
-template_url: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml
-disable_rollback: true
-enable_termination_protection: true
-capabilities:
+Name: hellobuckets
+TemplateURL: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml
+DisableRollback: true
+EnableTerminationProtection: true
+Capabilities:
 - CAPABILITY_IAM
 - CAPABILITY_AUTO_EXPAND
-parameters:
+Parameters:
   hello: world
   VpcId: vpc-123abcde789
   SubnetGroupId: subnet-group-id
   MultiAz: true
-tags:
+Tags:
   environment: production
   team: alpha`,
 			out: &StackConfig{
@@ -105,33 +105,33 @@ tags:
 
 		{
 			doc: `---
-name: hellobuckets
-template_url: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml
-disable_rollback: true
-on_failure: DELETE`,
+Name: hellobuckets
+TemplateURL: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml
+DisableRollback: true
+OnFailure: DELETE`,
 			err: errors.New("disable_rollback and on_failure cannot both be set"),
 		},
 
 		{
-			doc: "name: *does-not-exist",
+			doc: "Name: *does-not-exist",
 			err: errors.New("failed to parse YAML: error converting YAML to JSON: yaml: unknown anchor 'does-not-exist' referenced"),
 		},
 
 		{
 			doc: `---
-name: hellobuckets`,
+Name: hellobuckets`,
 			err: errors.New("Missing fields from document: template_url/template_body"),
 		},
 
 		{
 			doc: `---
-template_url: https://example.com/mytemplate.yaml`,
+TemplateURL: https://example.com/mytemplate.yaml`,
 			err: errors.New("Missing fields from document: name"),
 		},
 
 		{
 			doc: `---
-enable_termination_protection: true`,
+EnableTerminationProtection: true`,
 			err: errors.New("Missing fields from document: name, template_url/template_body"),
 		},
 	}

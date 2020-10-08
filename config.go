@@ -24,20 +24,20 @@ func NewStackFromYAML(doc []byte) (*StackConfig, error) {
 
 type StackConfig struct {
 	Name         string
-	TemplateURL  string       `json:"template_url"`
-	TemplateBody templateBody `json:"template_body"`
+	TemplateURL  string
+	TemplateBody templateBody
 	Parameters   map[string]string
 	Tags         map[string]string
 	Capabilities []string
 
 	// Settings for CreateStack()
-	DisableRollback bool `json:"disable_rollback"`
+	DisableRollback bool
 
 	// Settings for CreateStack()
-	EnableTerminationProtection bool `json:"enable_termination_protection"`
+	EnableTerminationProtection bool
 
 	// Settings for CreateStack()
-	OnFailure string `json:"on_failure"`
+	OnFailure string
 }
 
 func (s *StackConfig) SetBody(body string) {

@@ -1,13 +1,13 @@
 ---
 
 # Name for the cloudformation stack should be unique within your AWS region
-name: stack-name
+Name: stack-name
 
 # A URL to template (json/yaml) that lives in an S3 bucket.
 # This only works with templates in S3 buckets for now.
 #
 # You can only set template_body or template_url. Setting both causes an error.
-template_url: https://examplebucket.s3.us-west-2.amazonaws.com/template-name.yaml
+TemplateURL: https://examplebucket.s3.us-west-2.amazonaws.com/template-name.yaml
 
 # template_body enables you to embed the Cloudformation template directly. The
 # body only accepts YAML at the moment.
@@ -17,41 +17,41 @@ template_url: https://examplebucket.s3.us-west-2.amazonaws.com/template-name.yam
 # out a build pipeline where you can test the template before uploading to S3.
 #
 # You can only set template_body or template_url. Setting both causes an error.
-template_body:
+TemplateBody:
   AWSTemplateFormatVersion: "2010-09-09"
   Resources:
     S3Bucket:
       Type: AWS::S3::Bucket
 
 # Any parameters for the template
-parameters:
+Parameters:
   ParamName: value
   Param2Name: value2
 
 # Tags you'd like to add to the stack
-tags:
+Tags:
   Key1: Value
   key2: value
 
 # Some templates require a explicit parameters to apply:
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html
-capabilities:
+Capabilities:
 - CAPABILITY_IAM
 - CAPABILITY_AUTO_EXPAND
 
 # Enable termination protection on the Cloudformation Stack.
-enable_termination_protection: false
+EnableTerminationProtection: false
 
 # When creating a new stack, you can disable the rollback that automatically
 # happens if the stack fails to create.
 #
 # If you set this to true, you cannot use `on_failure` below.
-disable_rollback: false
+DisableRollback: false
 
 # When creating a new stack, you can specify the action to take when the stack fails.
 #
 # If you set this setting, you cannot use `disable_rollback`.
-on_failure: DELETE
+OnFailure: DELETE
 
 
 
