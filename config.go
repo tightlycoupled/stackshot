@@ -24,7 +24,7 @@ func NewStackFromYAML(doc []byte) (*StackConfig, error) {
 
 type StackConfig struct {
 	Name         string
-	Template     string
+	TemplateURL  string `json:"template_url"`
 	Parameters   map[string]string
 	Tags         map[string]string
 	Capabilities []string
@@ -45,8 +45,8 @@ func (s *StackConfig) verifyRequiredFields() error {
 		missingFields = append(missingFields, "name")
 	}
 
-	if s.Template == "" {
-		missingFields = append(missingFields, "template")
+	if s.TemplateURL == "" {
+		missingFields = append(missingFields, "template_url")
 	}
 
 	if len(missingFields) != 0 {

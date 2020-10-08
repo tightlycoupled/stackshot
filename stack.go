@@ -260,7 +260,7 @@ func (s *Stack) createStack() error {
 func (s *Stack) createStackInput() *cloudformation.CreateStackInput {
 	input := cloudformation.CreateStackInput{
 		StackName:                   aws.String(s.config.Name),
-		TemplateURL:                 aws.String(s.config.Template),
+		TemplateURL:                 aws.String(s.config.TemplateURL),
 		EnableTerminationProtection: aws.Bool(s.config.EnableTerminationProtection),
 	}
 
@@ -323,7 +323,7 @@ func (s *Stack) updateStack() error {
 func (s *Stack) updateStackInput() *cloudformation.UpdateStackInput {
 	input := cloudformation.UpdateStackInput{
 		StackName:   aws.String(s.config.Name),
-		TemplateURL: aws.String(s.config.Template),
+		TemplateURL: aws.String(s.config.TemplateURL),
 	}
 
 	if len(s.config.Parameters) > 0 {

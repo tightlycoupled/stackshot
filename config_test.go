@@ -29,10 +29,10 @@ func TestYAMLParsing(t *testing.T) {
 		{
 			doc: `---
 name: hellobuckets
-template: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml`,
+template_url: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml`,
 			out: &StackConfig{
 				Name:                        "hellobuckets",
-				Template:                    "https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml",
+				TemplateURL:                 "https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml",
 				DisableRollback:             false,
 				EnableTerminationProtection: false,
 				Parameters:                  nil,
@@ -46,7 +46,7 @@ template: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local
 		{
 			doc: `---
 name: hellobuckets
-template: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml
+template_url: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml
 disable_rollback: true
 enable_termination_protection: true
 capabilities:
@@ -62,7 +62,7 @@ tags:
   team: alpha`,
 			out: &StackConfig{
 				Name:                        "hellobuckets",
-				Template:                    "https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml",
+				TemplateURL:                 "https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml",
 				DisableRollback:             true,
 				EnableTerminationProtection: true,
 				Parameters: map[string]string{
@@ -82,7 +82,7 @@ tags:
 		{
 			doc: `---
 name: hellobuckets
-template: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml
+template_url: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml
 disable_rollback: true
 on_failure: DELETE`,
 			err: errors.New("disable_rollback and on_failure cannot both be set"),
@@ -96,19 +96,19 @@ on_failure: DELETE`,
 		{
 			doc: `---
 name: hellobuckets`,
-			err: errors.New("Missing fields from document: template"),
+			err: errors.New("Missing fields from document: template_url"),
 		},
 
 		{
 			doc: `---
-template: https://example.com/mytemplate.yaml`,
+template_url: https://example.com/mytemplate.yaml`,
 			err: errors.New("Missing fields from document: name"),
 		},
 
 		{
 			doc: `---
 enable_termination_protection: true`,
-			err: errors.New("Missing fields from document: name, template"),
+			err: errors.New("Missing fields from document: name, template_url"),
 		},
 	}
 

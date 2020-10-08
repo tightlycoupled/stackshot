@@ -175,8 +175,8 @@ func (s *stubEventLoader) setStackId(id *string) {
 
 func TestLoadStack(t *testing.T) {
 	config := StackConfig{
-		Name:     "mystack",
-		Template: "https://bucket.s3.amazonaws.com/template.yaml",
+		Name:        "mystack",
+		TemplateURL: "https://bucket.s3.amazonaws.com/template.yaml",
 	}
 
 	t.Run(
@@ -300,8 +300,8 @@ func TestLoadStack(t *testing.T) {
 
 func TestSync(t *testing.T) {
 	config := StackConfig{
-		Name:     "mystack",
-		Template: "https://bucket.s3.amazonaws.com/template.yaml",
+		Name:        "mystack",
+		TemplateURL: "https://bucket.s3.amazonaws.com/template.yaml",
 		Parameters: map[string]string{
 			"MyParam": "MyValue",
 		},
@@ -391,8 +391,8 @@ func TestSync(t *testing.T) {
 
 func TestWaitUntilDone(t *testing.T) {
 	config := StackConfig{
-		Name:     "mystack",
-		Template: "https://bucket.s3.amazonaws.com/template.yaml",
+		Name:        "mystack",
+		TemplateURL: "https://bucket.s3.amazonaws.com/template.yaml",
 	}
 
 	tests := []struct {
