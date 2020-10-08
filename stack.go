@@ -260,8 +260,13 @@ func (s *Stack) createStack() error {
 func (s *Stack) createStackInput() *cloudformation.CreateStackInput {
 	input := cloudformation.CreateStackInput{
 		StackName:                   aws.String(s.config.Name),
-		TemplateURL:                 aws.String(s.config.TemplateURL),
 		EnableTerminationProtection: aws.Bool(s.config.EnableTerminationProtection),
+	}
+
+	if s.config.TemplateURL != "" {
+		input.TemplateURL = aws.String(s.config.TemplateURL)
+	} else {
+		input.TemplateBody = aws.String(string(s.config.TemplateBody))
 	}
 
 	// TODO: Validate this before making the API request
@@ -322,8 +327,13 @@ func (s *Stack) updateStack() error {
 
 func (s *Stack) updateStackInput() *cloudformation.UpdateStackInput {
 	input := cloudformation.UpdateStackInput{
-		StackName:   aws.String(s.config.Name),
-		TemplateURL: aws.String(s.config.TemplateURL),
+		StackName: aws.String(s.config.Name),
+	}
+
+	if s.config.TemplateURL != "" {
+		input.TemplateURL = aws.String(s.config.TemplateURL)
+	} else {
+		input.TemplateBody = aws.String(string(s.config.TemplateBody))
 	}
 
 	if len(s.config.Parameters) > 0 {

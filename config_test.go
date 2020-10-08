@@ -32,7 +32,30 @@ name: hellobuckets
 template_url: https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml`,
 			out: &StackConfig{
 				Name:                        "hellobuckets",
+				TemplateBody:                "",
 				TemplateURL:                 "https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml",
+				DisableRollback:             false,
+				EnableTerminationProtection: false,
+				Parameters:                  nil,
+				Tags:                        nil,
+				Capabilities:                nil,
+				OnFailure:                   "",
+			},
+		},
+
+		// Defaults with template_body as valid YAML
+		{
+			doc: `---
+name: hellobuckets
+template_body:
+  AWSTemplateFormatVersion: 2010-09-09
+  Resources:
+    S3Bucket:
+      Type: AWS::S3::Bucket`,
+			out: &StackConfig{
+				Name:                        "hellobuckets",
+				TemplateBody:                "{\"AWSTemplateFormatVersion\":\"2010-09-09\",\"Resources\":{\"S3Bucket\":{\"Type\":\"AWS::S3::Bucket\"}}}",
+				TemplateURL:                 "",
 				DisableRollback:             false,
 				EnableTerminationProtection: false,
 				Parameters:                  nil,
@@ -62,6 +85,7 @@ tags:
   team: alpha`,
 			out: &StackConfig{
 				Name:                        "hellobuckets",
+				TemplateBody:                "",
 				TemplateURL:                 "https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml",
 				DisableRollback:             true,
 				EnableTerminationProtection: true,
@@ -96,7 +120,7 @@ on_failure: DELETE`,
 		{
 			doc: `---
 name: hellobuckets`,
-			err: errors.New("Missing fields from document: template_url"),
+			err: errors.New("Missing fields from document: template_url/template_body"),
 		},
 
 		{
@@ -108,7 +132,7 @@ template_url: https://example.com/mytemplate.yaml`,
 		{
 			doc: `---
 enable_termination_protection: true`,
-			err: errors.New("Missing fields from document: name, template_url"),
+			err: errors.New("Missing fields from document: name, template_url/template_body"),
 		},
 	}
 
