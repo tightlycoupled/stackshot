@@ -13,8 +13,8 @@ template](https://s3.us-west-2.amazonaws.com/cloudformation-templates-us-west-2/
 ```yaml
 # saved as mybucket.yaml
 ---
-name: mybucket
-template: https://s3.amazonaws.com/cloudformation-templates-us-east-1/S3_Website_Bucket_With_Retain_On_Delete.template
+Name: mybucket
+TemplateURL: https://s3.amazonaws.com/cloudformation-templates-us-east-1/S3_Website_Bucket_With_Retain_On_Delete.template
 ```
 
 To create a stack, run `stackshot`:
@@ -34,9 +34,9 @@ AccessControl](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aw
 setting. You can add parameters to `mybucket.yaml` like so:
 
 ```yaml
-name: mybucket
-template: https://s3.amazonaws.com/cloudformation-templates-us-east-1/S3_Website_Bucket_With_Retain_On_Delete.template
-parameters:
+Name: mybucket
+Template: https://s3.amazonaws.com/cloudformation-templates-us-east-1/S3_Website_Bucket_With_Retain_On_Delete.template
+Parameters:
   AccessControl: Private
 
 ```
