@@ -11,6 +11,10 @@ test-coverage:
 build:
 	go build ./cmds/...
 
+build-distribs:
+	GOOS=darwin go build -o stackshot-darwin-${VERSION} ./cmds/...
+	GOOS=linux go build -o stackshot-linux-${VERSION} ./cmds/...
+
 .PHONY: clean
 clean:
 	-rm cp.out
