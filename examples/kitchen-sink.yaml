@@ -6,8 +6,15 @@ Name: stack-name
 # A URL to template (json/yaml) that lives in an S3 bucket.
 # This only works with templates in S3 buckets for now.
 #
-# You can only set template_body or template_url. Setting both causes an error.
+# You can only one of template_body, template_path, or template_url. Setting
+# more than one causes an error.
 TemplateURL: https://examplebucket.s3.us-west-2.amazonaws.com/template-name.yaml
+
+# A local filepath to a template.
+#
+# You can only one of template_body, template_path, or template_url. Setting
+# more than one causes an error.
+TemplatePath: local/path/to/template.yaml
 
 # template_body enables you to embed the Cloudformation template directly. The
 # body only accepts YAML at the moment.
@@ -16,7 +23,8 @@ TemplateURL: https://examplebucket.s3.us-west-2.amazonaws.com/template-name.yaml
 # template is better handled in an S3 bucket. This would enable you to build
 # out a build pipeline where you can test the template before uploading to S3.
 #
-# You can only set template_body or template_url. Setting both causes an error.
+# You can only one of template_body, template_path, or template_url. Setting both
+# causes an error.
 TemplateBody:
   AWSTemplateFormatVersion: "2010-09-09"
   Resources:

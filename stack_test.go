@@ -173,6 +173,18 @@ func (s *stubEventLoader) latestEvents(consumer EventConsumer) error {
 func (s *stubEventLoader) setStackId(id *string) {
 }
 
+type stubFileReader struct {
+	contents string
+	err      error
+}
+
+func (s *stubFileReader) ReadFile(input string) ([]byte, error) {
+	if s.err != nil {
+		return nil, s.err
+	}
+	return []byte(s.contents), nil
+}
+
 func TestLoadStack(t *testing.T) {
 	config := StackConfig{
 		Name:        "mystack",
@@ -387,6 +399,70 @@ func TestSync(t *testing.T) {
 			}
 		},
 	)
+}
+
+func TestTemplateTypes(t *testing.T) {
+	template := `
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket`
+
+	configs := []*StackConfig{
+		&StackConfig{
+			Name:         "mystack",
+			TemplatePath: "template.yaml",
+		},
+
+		&StackConfig{
+			Name:         "mystack",
+			TemplateBody: templateBody(template),
+		},
+	}
+
+	for i, config := range configs {
+		t.Run(
+			fmt.Sprintf("Create new stack config #%d", i),
+			func(t *testing.T) {
+				api := MockAPI{}
+				stubOutput := cfn.CreateStackOutput{}
+				api.CreateStackFn = GenCreateStackFn(&stubOutput)
+
+				stack := Stack{
+					api:            &api,
+					config:         config,
+					templateReader: &stubFileReader{contents: template},
+				}
+
+				err := stack.Sync()
+				if err != nil {
+					t.Errorf("Expected Sync() to succeed. Got failure")
+				}
+			},
+		)
+
+		t.Run(
+			fmt.Sprintf("Update stack config #%d", i),
+			func(t *testing.T) {
+				api := MockAPI{}
+				stubOutput := cfn.UpdateStackOutput{}
+				api.UpdateStackFn = GenUpdateStackFn(&stubOutput)
+
+				stack := Stack{
+					cloudStack:     &cfn.Stack{StackName: aws.String(config.Name)},
+					api:            &api,
+					config:         config,
+					templateReader: &stubFileReader{contents: template},
+				}
+
+				err := stack.Sync()
+				if err != nil {
+					t.Errorf("Expected Sync() to succeed. Got failure")
+				}
+			},
+		)
+	}
+
 }
 
 func TestWaitUntilDone(t *testing.T) {

@@ -2,6 +2,7 @@ package stackshot
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"time"
 
@@ -78,6 +79,16 @@ func EventPrinter(event *cloudformation.StackEvent) error {
 	return nil
 }
 
+type localFileReader interface {
+	ReadFile(string) ([]byte, error)
+}
+
+type fileReaderFunc func(string) ([]byte, error)
+
+func (f fileReaderFunc) ReadFile(filepath string) ([]byte, error) {
+	return f(filepath)
+}
+
 // LoadStack allocates a new Stack used to synchronize a StackConfig's
 // configuration with a new or existing Cloudformation Stack.
 func LoadStack(api cloudformationiface.CloudFormationAPI, config *StackConfig) (*Stack, error) {
@@ -90,6 +101,8 @@ func LoadStack(api cloudformationiface.CloudFormationAPI, config *StackConfig) (
 			api:       api,
 			stackName: aws.String(config.Name),
 		},
+
+		templateReader: fileReaderFunc(ioutil.ReadFile),
 	}
 
 	err := stack.load()
@@ -116,9 +129,10 @@ func LoadStack(api cloudformationiface.CloudFormationAPI, config *StackConfig) (
 type Stack struct {
 	eventLoader
 
-	cloudStack *cloudformation.Stack
-	api        cloudformationiface.CloudFormationAPI
-	config     *StackConfig
+	cloudStack     *cloudformation.Stack
+	api            cloudformationiface.CloudFormationAPI
+	config         *StackConfig
+	templateReader localFileReader
 
 	waiter       waiter
 	waitAttempts int
@@ -248,7 +262,10 @@ func (s *Stack) SyncAndPollEvents(consumer EventConsumer) error {
 }
 
 func (s *Stack) createStack() error {
-	_, err := s.api.CreateStack(s.createStackInput())
+	input, err := s.createStackInput()
+	if err == nil {
+		_, err = s.api.CreateStack(input)
+	}
 
 	if err != nil {
 		return errors.Wrap(err, "failed to create stack: ")
@@ -257,7 +274,7 @@ func (s *Stack) createStack() error {
 	return nil
 }
 
-func (s *Stack) createStackInput() *cloudformation.CreateStackInput {
+func (s *Stack) createStackInput() (*cloudformation.CreateStackInput, error) {
 	input := cloudformation.CreateStackInput{
 		StackName:                   aws.String(s.config.Name),
 		EnableTerminationProtection: aws.Bool(s.config.EnableTerminationProtection),
@@ -265,6 +282,12 @@ func (s *Stack) createStackInput() *cloudformation.CreateStackInput {
 
 	if s.config.TemplateURL != "" {
 		input.TemplateURL = aws.String(s.config.TemplateURL)
+	} else if s.config.TemplatePath != "" {
+		body, err := s.templateReader.ReadFile(s.config.TemplatePath)
+		if err != nil {
+			return nil, err
+		}
+		input.TemplateBody = aws.String(string(body))
 	} else {
 		input.TemplateBody = aws.String(string(s.config.TemplateBody))
 	}
@@ -310,11 +333,14 @@ func (s *Stack) createStackInput() *cloudformation.CreateStackInput {
 		input.Capabilities = aws.StringSlice(s.config.Capabilities)
 	}
 
-	return &input
+	return &input, nil
 }
 
 func (s *Stack) updateStack() error {
-	_, err := s.api.UpdateStack(s.updateStackInput())
+	input, err := s.updateStackInput()
+	if err == nil {
+		_, err = s.api.UpdateStack(input)
+	}
 
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
@@ -325,13 +351,19 @@ func (s *Stack) updateStack() error {
 	return nil
 }
 
-func (s *Stack) updateStackInput() *cloudformation.UpdateStackInput {
+func (s *Stack) updateStackInput() (*cloudformation.UpdateStackInput, error) {
 	input := cloudformation.UpdateStackInput{
 		StackName: aws.String(s.config.Name),
 	}
 
 	if s.config.TemplateURL != "" {
 		input.TemplateURL = aws.String(s.config.TemplateURL)
+	} else if s.config.TemplatePath != "" {
+		body, err := s.templateReader.ReadFile(s.config.TemplatePath)
+		if err != nil {
+			return nil, err
+		}
+		input.TemplateBody = aws.String(string(body))
 	} else {
 		input.TemplateBody = aws.String(string(s.config.TemplateBody))
 	}
@@ -362,7 +394,7 @@ func (s *Stack) updateStackInput() *cloudformation.UpdateStackInput {
 	if len(s.config.Capabilities) > 0 {
 		input.Capabilities = aws.StringSlice(s.config.Capabilities)
 	}
-	return &input
+	return &input, nil
 }
 
 // NoStackUpdatesToPerform inspects awserr.Error to detect if a Cloudformation

@@ -54,8 +54,9 @@ TemplateBody:
       Type: AWS::S3::Bucket`,
 			out: &StackConfig{
 				Name:                        "hellobuckets",
-				TemplateBody:                "{\"AWSTemplateFormatVersion\":\"2010-09-09\",\"Resources\":{\"S3Bucket\":{\"Type\":\"AWS::S3::Bucket\"}}}",
+				TemplateBody:                "AWSTemplateFormatVersion: \"2010-09-09\"\nResources:\n  S3Bucket:\n    Type: AWS::S3::Bucket\n",
 				TemplateURL:                 "",
+				TemplatePath:                "",
 				DisableRollback:             false,
 				EnableTerminationProtection: false,
 				Parameters:                  nil,
@@ -65,6 +66,25 @@ TemplateBody:
 			},
 		},
 
+		// Defaults with template_path as valid YAML
+		{
+			doc: `---
+Name: hellobuckets
+TemplatePath: templates/s3bucket.yaml
+`,
+			out: &StackConfig{
+				Name:                        "hellobuckets",
+				TemplatePath:                "templates/s3bucket.yaml",
+				TemplateURL:                 "",
+				TemplateBody:                "",
+				DisableRollback:             false,
+				EnableTerminationProtection: false,
+				Parameters:                  nil,
+				Tags:                        nil,
+				Capabilities:                nil,
+				OnFailure:                   "",
+			},
+		},
 		// Fully filled out
 		{
 			doc: `---
@@ -86,6 +106,7 @@ Tags:
 			out: &StackConfig{
 				Name:                        "hellobuckets",
 				TemplateBody:                "",
+				TemplatePath:                "",
 				TemplateURL:                 "https://cfn-deploy-templates.s3.amazonaws.com/s3bucket-barebones.local.yaml",
 				DisableRollback:             true,
 				EnableTerminationProtection: true,
@@ -120,7 +141,7 @@ OnFailure: DELETE`,
 		{
 			doc: `---
 Name: hellobuckets`,
-			err: errors.New("Missing fields from document: template_url/template_body"),
+			err: errors.New("Missing fields from document: template_url/template_body/template_path"),
 		},
 
 		{
@@ -132,7 +153,7 @@ TemplateURL: https://example.com/mytemplate.yaml`,
 		{
 			doc: `---
 EnableTerminationProtection: true`,
-			err: errors.New("Missing fields from document: name, template_url/template_body"),
+			err: errors.New("Missing fields from document: name, template_url/template_body/template_path"),
 		},
 	}
 

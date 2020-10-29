@@ -22,9 +22,14 @@ func NewStackFromYAML(doc []byte) (*StackConfig, error) {
 	return &s, nil
 }
 
+type templateReader interface {
+	ReadFile(string) ([]byte, error)
+}
+
 type StackConfig struct {
 	Name         string
 	TemplateURL  string
+	TemplatePath string
 	TemplateBody templateBody
 	Parameters   map[string]string
 	Tags         map[string]string
@@ -40,18 +45,14 @@ type StackConfig struct {
 	OnFailure string
 }
 
-func (s *StackConfig) SetBody(body string) {
-	s.TemplateBody = templateBody(body)
-}
-
 func (s *StackConfig) verifyRequiredFields() error {
 	missingFields := []string{}
 	if s.Name == "" {
 		missingFields = append(missingFields, "name")
 	}
 
-	if s.TemplateURL == "" && s.TemplateBody == "" {
-		missingFields = append(missingFields, "template_url/template_body")
+	if s.TemplateURL == "" && s.TemplateBody == "" && s.TemplatePath == "" {
+		missingFields = append(missingFields, "template_url/template_body/template_path")
 	}
 
 	if len(missingFields) != 0 {
@@ -70,11 +71,13 @@ func (s *StackConfig) verifyRequiredFields() error {
 
 type templateBody string
 
-// Custom parser for `template_body` key. Since we're using ghodss/yaml, data
-// is actually JSON. Therefore, there was a data transformation that occurred.
-// I don't think there's a problem with this, but it might be a problem in the
-// future if we wanted to introduce syntax checking.
+// Convert data back into YAML to match what a user will write a template in.
 func (t *templateBody) UnmarshalJSON(data []byte) error {
-	*t = templateBody(string(data))
+	body, err := yaml.JSONToYAML(data)
+	if err != nil {
+		return err
+	}
+
+	*t = templateBody(string(body))
 	return nil
 }
